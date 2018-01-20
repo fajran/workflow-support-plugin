@@ -140,8 +140,11 @@ public class LogActionImpl extends LogAction implements FlowNodeAction {
      * The actual log file.
      */
     private File getLogFile() throws IOException {
-        if (log==null)
-            log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log");
+        if (log == null) {
+            log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log.gz");
+            if (!log.exists())
+                log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log");
+        }
         return log;
     }
 
