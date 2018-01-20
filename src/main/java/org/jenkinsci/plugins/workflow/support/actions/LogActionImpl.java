@@ -97,7 +97,6 @@ public class LogActionImpl extends LogAction implements FlowNodeAction {
     }
 
     private transient FlowNode parent;
-    private transient volatile File log;
     private String charset;
 
     private LogActionImpl(FlowNode parent, Charset charset) throws IOException {
@@ -116,7 +115,7 @@ public class LogActionImpl extends LogAction implements FlowNodeAction {
     @Override
     public AnnotatedLargeText<? extends FlowNode> getLogText() {
         try {
-            getLogFile();
+            File log = getLogFile();
             if (!log.exists()) {
                 return new AnnotatedLargeText<>(new ByteBuffer(), getCharset(), !parent.isActive(), parent);
             }
@@ -140,11 +139,9 @@ public class LogActionImpl extends LogAction implements FlowNodeAction {
      * The actual log file.
      */
     private File getLogFile() throws IOException {
-        if (log == null) {
-            log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log.gz");
-            if (!log.exists())
-                log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log");
-        }
+        File log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log.gz");
+        if (!log.exists())
+            log = new File(parent.getExecution().getOwner().getRootDir(), parent.getId() + ".log");
         return log;
     }
 
@@ -169,6 +166,12 @@ public class LogActionImpl extends LogAction implements FlowNodeAction {
     }
 
     @Override public String toString() {
+        File log;
+        try {
+            log = getLogFile();
+        } catch (IOException ignored) {
+            log = null;
+        }
         return "LogActionImpl[" + log + "]";
     }
 }
